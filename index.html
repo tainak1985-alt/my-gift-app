@@ -14,6 +14,9 @@
             --text-secondary: #7f91a4;
             --accent-blue: #2b72d8;
             --border-color: rgba(255, 255, 255, 0.07);
+            --rarity-legendary: #f59e0b;
+            --rarity-rare: #a855f7;
+            --rarity-common: #3b82f6;
         }
 
         * {
@@ -31,11 +34,49 @@
             user-select: none;
         }
 
+        .header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 4px 0 12px 4px;
+        }
+
         .header-title {
             font-size: 20px;
-            font-weight: 700;
-            margin: 4px 0 14px 4px;
+            font-weight: 800;
+            margin: 0;
             letter-spacing: -0.4px;
+        }
+
+        /* Полоса сортировки и фильтров */
+        .controls-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 4px;
+        }
+
+        .controls-bar::-webkit-scrollbar { display: none; }
+
+        .sort-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sort-btn.active {
+            background: rgba(43, 114, 216, 0.2);
+            border-color: var(--accent-blue);
+            color: #fff;
         }
 
         .gifts-grid {
@@ -47,20 +88,20 @@
         /* Карточка MRKT Style */
         .mrkt-card {
             background: var(--card-bg);
-            border-radius: 16px;
+            border-radius: 18px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             border: 1px solid var(--border-color);
             cursor: pointer;
-            transition: transform 0.15s ease;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            position: relative;
         }
 
         .mrkt-card:active {
             transform: scale(0.96);
         }
 
-        /* Медиа-контейнер для NFT */
         .mrkt-media {
             width: 100%;
             aspect-ratio: 1 / 1;
@@ -77,35 +118,55 @@
             inset: 0;
             background-size: 32px 32px;
             background-repeat: repeat;
-            opacity: 0.12;
+            opacity: 0.14;
             transform: rotate(-12deg) scale(1.2);
             pointer-events: none;
         }
 
-        /* Картинка / Модель с Spring-анимацией */
+        /* Картинка с анимацией парения */
         .mrkt-image {
             width: 75%;
             height: 75%;
             object-fit: contain;
             z-index: 2;
-            filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.45));
+            filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.5));
             transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: floatGlow 3.5s ease-in-out infinite;
+        }
+
+        @keyframes floatGlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-4px) rotate(1deg); }
         }
 
         .mrkt-card:active .mrkt-image {
             transform: scale(1.12) rotate(-2deg);
         }
 
-        /* Плашки сверху карточки */
+        /* Плашка редкого атрибута */
+        .badge-rarity {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-radius: 8px;
+            z-index: 3;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         .badge-num {
             position: absolute;
             top: 8px;
             left: 8px;
-            background: rgba(0, 0, 0, 0.45);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(6px);
             color: #fff;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             padding: 3px 7px;
             border-radius: 8px;
             z-index: 3;
@@ -115,11 +176,11 @@
             position: absolute;
             bottom: 8px;
             right: 8px;
-            background: rgba(43, 114, 216, 0.85);
+            background: rgba(43, 114, 216, 0.9);
             backdrop-filter: blur(6px);
             color: #fff;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 800;
             padding: 4px 8px;
             border-radius: 8px;
             z-index: 3;
@@ -141,16 +202,16 @@
         }
 
         .mrkt-sub {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
         }
 
-        /* Bottom Sheet в стиле Telegram MRKT */
+        /* Bottom Sheet MRKT */
         .sheet-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
             display: flex;
             justify-content: center;
             align-items: flex-end;
@@ -169,8 +230,8 @@
             width: 100%;
             max-width: 500px;
             background: #17212b;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
             padding: 12px 16px 24px 16px;
             transform: translateY(100%);
             transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
@@ -182,23 +243,24 @@
         }
 
         .sheet-handle {
-            width: 36px;
+            width: 38px;
             height: 4px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             border-radius: 2px;
             margin: 0 auto 16px auto;
         }
 
         .sheet-preview {
-            width: 130px;
-            height: 130px;
+            width: 140px;
+            height: 140px;
             margin: 0 auto 14px auto;
-            border-radius: 18px;
+            border-radius: 22px;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sheet-preview img {
@@ -206,19 +268,19 @@
             height: 80%;
             object-fit: contain;
             z-index: 2;
-            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5));
-            animation: mrktPulse 2.5s ease-in-out infinite;
+            filter: drop-shadow(0 10px 16px rgba(0,0,0,0.6));
+            animation: pulseGlow 2.5s ease-in-out infinite;
         }
 
-        @keyframes mrktPulse {
+        @keyframes pulseGlow {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.06); }
+            50% { transform: scale(1.08); }
         }
 
         .sheet-title {
             text-align: center;
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 19px;
+            font-weight: 800;
             margin: 0;
         }
 
@@ -229,7 +291,7 @@
             margin: 2px 0 16px 0;
         }
 
-        /* Сетка свойств NFT (Attributes Grid) */
+        /* Сетка атрибутов с процентами редких характеристик */
         .attributes-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -239,28 +301,42 @@
 
         .attr-box {
             background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 8px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
             gap: 2px;
+            position: relative;
+        }
+
+        .attr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .attr-label {
             font-size: 11px;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+        }
+
+        .attr-pct {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 6px;
         }
 
         .attr-value {
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             color: #fff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-top: 2px;
         }
 
         .btn-buy {
@@ -269,27 +345,34 @@
             color: #fff;
             border: none;
             padding: 14px;
-            border-radius: 14px;
+            border-radius: 16px;
             font-size: 15px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
             display: block;
-            box-shadow: 0 4px 12px rgba(43, 114, 216, 0.3);
-        }
-
-        .btn-buy:active {
-            opacity: 0.85;
+            box-shadow: 0 4px 16px rgba(43, 114, 216, 0.35);
         }
     </style>
 </head>
 <body>
 
-    <div class="header-title">NFT Подарки (MRKT)</div>
+    <div class="header-box">
+        <h1 class="header-title">MRKT Gifts Market</h1>
+    </div>
+
+    <!-- Переключатели сортировки -->
+    <div class="controls-bar">
+        <button class="sort-btn active" onclick="sortGifts('default', this)">🔥 В тренде</button>
+        <button class="sort-btn" onclick="sortGifts('price-low', this)">💎 Дешевле</button>
+        <button class="sort-btn" onclick="sortGifts('price-high', this)">👑 Дороже</button>
+        <button class="sort-btn" onclick="sortGifts('number', this)">🔢 Низкий ID</button>
+    </div>
+
     <div class="gifts-grid" id="gifts-container"></div>
 
-    <!-- Всплывающее окно карточки -->
+    <!-- Bottom Sheet -->
     <div class="sheet-overlay" id="sheet-modal" onclick="closeSheet(event)">
         <div class="sheet-content">
             <div class="sheet-handle"></div>
@@ -304,19 +387,31 @@
 
             <div class="attributes-grid">
                 <div class="attr-box">
-                    <span class="attr-label">Модель</span>
+                    <div class="attr-header">
+                        <span class="attr-label">Модель</span>
+                        <span class="attr-pct" id="pct-model" style="color: var(--rarity-legendary); background: rgba(245, 158, 11, 0.15);">0.8%</span>
+                    </div>
                     <span class="attr-value" id="modal-model">-</span>
                 </div>
                 <div class="attr-box">
-                    <span class="attr-label">Фон</span>
+                    <div class="attr-header">
+                        <span class="attr-label">Фон</span>
+                        <span class="attr-pct" id="pct-backdrop" style="color: var(--rarity-rare); background: rgba(168, 85, 247, 0.15);">3.2%</span>
+                    </div>
                     <span class="attr-value" id="modal-backdrop">-</span>
                 </div>
                 <div class="attr-box">
-                    <span class="attr-label">Символ</span>
+                    <div class="attr-header">
+                        <span class="attr-label">Символ</span>
+                        <span class="attr-pct" id="pct-symbol" style="color: var(--rarity-common); background: rgba(59, 130, 246, 0.15);">12.5%</span>
+                    </div>
                     <span class="attr-value" id="modal-symbol">-</span>
                 </div>
                 <div class="attr-box">
-                    <span class="attr-label">Номер</span>
+                    <div class="attr-header">
+                        <span class="attr-label">Номер</span>
+                        <span class="attr-pct" id="pct-number" style="color: var(--rarity-common); background: rgba(59, 130, 246, 0.15);">#ID</span>
+                    </div>
                     <span class="attr-value" id="modal-number">-</span>
                 </div>
             </div>
@@ -330,67 +425,90 @@
         tg.expand();
         tg.ready();
 
-        // База подарков со всеми атрибутами
-        const giftsData = [
+        let giftsData = [
             {
                 name: "Freddy Monkey",
                 collection: "FCK CLUB",
-                number: "1024",
+                number: 1024,
                 model: "Freddy Wolverine",
-                backdrop: "Dark Gradient",
+                modelPct: "0.5%",
+                backdrop: "Dark Radial",
+                backdropPct: "1.2%",
                 symbol: "FCK Emblem",
-                bgGradient: "radial-gradient(circle, #2d2d2d 0%, #111111 100%)",
+                symbolPct: "4.5%",
+                bgGradient: "radial-gradient(circle, #2d2d2d 0%, #0d0d0d 100%)",
                 patternSvg: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"white\"><path d=\"M12 2L15 9H22L16 14L18 21L12 17L6 21L8 14L2 9H9L12 2Z\"/></svg>')",
                 image: "https://i.postimg.cc/mD8N0x5G/monkey-freddy.png",
+                priceNum: 250,
                 price: "250 TON",
+                rarityLabel: "TOP 0.5%",
+                rarityColor: "#f59e0b",
                 link: "https://t.me/mrkt"
             },
             {
                 name: "Plush Pepe",
                 collection: "Pepe Gifts",
-                number: "788",
+                number: 788,
                 model: "Golden Frog",
+                modelPct: "1.8%",
                 backdrop: "Emerald Sparkle",
+                backdropPct: "5.0%",
                 symbol: "Pepe Mask",
+                symbolPct: "8.2%",
                 bgGradient: "radial-gradient(circle, #059669 0%, #022c22 100%)",
                 patternSvg: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"white\"><circle cx=\"12\" cy=\"12\" r=\"8\"/></svg>')",
                 image: "https://cdn-icons-png.flaticon.com/512/4213/4213641.png",
+                priceNum: 180,
                 price: "180 TON",
+                rarityLabel: "TOP 2%",
+                rarityColor: "#a855f7",
                 link: "https://t.me/mrkt"
             },
             {
                 name: "Durov Cap",
                 collection: "Telegram Originals",
-                number: "1",
+                number: 1,
                 model: "Black Cap",
+                modelPct: "0.1%",
                 backdrop: "Midnight Sky",
+                backdropPct: "0.3%",
                 symbol: "Telegram Star",
+                symbolPct: "1.0%",
                 bgGradient: "radial-gradient(circle, #1e293b 0%, #020617 100%)",
                 patternSvg: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"white\"><polygon points=\"12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9\"/></svg>')",
                 image: "https://cdn-icons-png.flaticon.com/512/3345/3345380.png",
+                priceNum: 1200,
                 price: "1200 TON",
+                rarityLabel: "TOP 0.1%",
+                rarityColor: "#f59e0b",
                 link: "https://t.me/mrkt"
             },
             {
                 name: "Cyber Skull",
                 collection: "Electric Skulls",
-                number: "404",
+                number: 404,
                 model: "Neon Skeleton",
+                modelPct: "3.5%",
                 backdrop: "Cyber Cyan",
+                backdropPct: "7.1%",
                 symbol: "Lightning",
+                symbolPct: "15.0%",
                 bgGradient: "radial-gradient(circle, #0891b2 0%, #083344 100%)",
                 patternSvg: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"white\"><polygon points=\"13,2 3,14 12,14 11,22 21,10 12,10\"/></svg>')",
                 image: "https://cdn-icons-png.flaticon.com/512/1162/1162981.png",
+                priceNum: 310,
                 price: "310 TON",
+                rarityLabel: "RARE",
+                rarityColor: "#3b82f6",
                 link: "https://t.me/mrkt"
             }
         ];
 
-        function renderGifts() {
+        function renderGifts(data) {
             const container = document.getElementById('gifts-container');
             container.innerHTML = '';
 
-            giftsData.forEach(item => {
+            data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'mrkt-card';
                 card.onclick = () => openSheet(item);
@@ -399,6 +517,7 @@
                     <div class="mrkt-media" style="background: ${item.bgGradient}">
                         <div class="mrkt-pattern" style="background-image: ${item.patternSvg}"></div>
                         <div class="badge-num">#${item.number}</div>
+                        <div class="badge-rarity" style="color: ${item.rarityColor}">${item.rarityLabel}</div>
                         <div class="badge-price">${item.price}</div>
                         <img src="${item.image}" class="mrkt-image" alt="${item.name}">
                     </div>
@@ -409,6 +528,18 @@
                 `;
                 container.appendChild(card);
             });
+        }
+
+        function sortGifts(type, btn) {
+            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            let sorted = [...giftsData];
+            if (type === 'price-low') sorted.sort((a, b) => a.priceNum - b.priceNum);
+            if (type === 'price-high') sorted.sort((a, b) => b.priceNum - a.priceNum);
+            if (type === 'number') sorted.sort((a, b) => a.number - b.number);
+
+            renderGifts(sorted);
         }
 
         function openSheet(item) {
@@ -423,9 +554,16 @@
             document.getElementById('modal-collection').innerText = item.collection + " • #" + item.number;
 
             document.getElementById('modal-model').innerText = item.model;
+            document.getElementById('pct-model').innerText = item.modelPct;
+
             document.getElementById('modal-backdrop').innerText = item.backdrop;
+            document.getElementById('pct-backdrop').innerText = item.backdropPct;
+
             document.getElementById('modal-symbol').innerText = item.symbol;
+            document.getElementById('pct-symbol').innerText = item.symbolPct;
+
             document.getElementById('modal-number').innerText = "#" + item.number;
+            document.getElementById('pct-number').innerText = item.rarityLabel;
 
             document.getElementById('modal-btn').innerText = "Купить за " + item.price;
             document.getElementById('modal-btn').href = item.link;
@@ -439,7 +577,7 @@
             }
         }
 
-        renderGifts();
+        renderGifts(giftsData);
     </script>
 </body>
 </html>
