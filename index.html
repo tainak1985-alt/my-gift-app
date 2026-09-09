@@ -2,61 +2,169 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gifts Monitor</title>
-    <!-- Обязательный скрипт Telegram Mini Apps -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Gift Upgrades Tracker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--tg-theme-bg-color, #17212b);
-            color: var(--tg-theme-text-color, #ffffff);
-            padding: 16px;
-            margin: 0;
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
         }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, var(--bg-color));
+            color: var(--tg-theme-text-color, var(--text-main));
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
         .header {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 20px;
         }
-        .gift-card {
-            background: var(--tg-theme-secondary-bg-color, #232e3c);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
         }
-        .btn {
-            display: block;
-            background-color: var(--tg-theme-button-color, #2b5278);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            text-decoration: none;
+
+        .badge {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 600;
-            margin-top: 10px;
+        }
+
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .gift-card {
+            background: var(--tg-theme-secondary-bg-color, var(--card-bg));
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .gift-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .gift-icon {
+            font-size: 32px;
+            background: rgba(255, 255, 255, 0.05);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .gift-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .gift-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .gift-owner {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        .btn-action {
+            display: block;
+            text-align: center;
+            background: var(--tg-theme-button-color, var(--accent-color));
+            color: var(--tg-theme-button-text-color, #ffffff);
+            padding: 10px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-sub);
+            margin-top: 40px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
+
     <div class="header">
-        <h2>🎁 Трекер Подарков</h2>
+        <h1 class="title">🎁 NFT Апгрейды</h1>
+        <span class="badge" id="status-badge">Live</span>
     </div>
 
-    <!-- Список подарков -->
-    <div id="gifts-list">
+    <div class="feed-container" id="feed">
+        <!-- Пример карточки -->
         <div class="gift-card">
-            <h3>✨ Улучшенный подарок #1024</h3>
-            <p>Владелец: <b>@username</b></p>
-            <a href="https://fragment.com" target="_blank" class="btn">Открыть на Fragment</a>
+            <div class="card-header">
+                <div class="gift-icon">✨</div>
+                <div class="gift-info">
+                    <div class="gift-name">Red Star #1024</div>
+                    <div class="gift-owner">Владелец: EQBv...3k9P</div>
+                </div>
+            </div>
+            <a href="https://fragment.com" class="btn-action" target="_blank">Смотреть на Fragment</a>
         </div>
     </div>
 
     <script>
-        // Инициализация интерфейса Telegram
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачивает окно приложения на весь экран
+        tg.expand();
         tg.ready();
+
+        // Функция для динамического добавления новых событий из бэкенда
+        function addGiftEvent(name, owner, url) {
+            const feed = document.getElementById('feed');
+            const card = document.createElement('div');
+            card.className = 'gift-card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="gift-icon">🎁</div>
+                    <div class="gift-info">
+                        <div class="gift-name">${name}</div>
+                        <div class="gift-owner">Владелец: ${owner}</div>
+                    </div>
+                </div>
+                <a href="${url}" class="btn-action" target="_blank">Смотреть на Fragment</a>
+            `;
+            feed.prepend(card);
+        }
     </script>
 </body>
 </html>
