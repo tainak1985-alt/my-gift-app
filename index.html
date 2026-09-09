@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gifts Neon Hub</title>
+    <title>TON Gifts 3D Explorer</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- 3D Viewer библиотека для отображения интерактива -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #030712 0%, #081128 50%, #030712 100%);
-            --glass-bg: rgba(14, 23, 42, 0.55);
-            --glass-border: rgba(56, 189, 248, 0.25);
-            --neon-blue: #00f0ff;
-            --neon-glow: 0 0 15px rgba(0, 240, 255, 0.4);
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
+            --bg-gradient: radial-gradient(circle at top, #0b192c 0%, #030712 100%);
+            --glass-bg: rgba(14, 30, 55, 0.6);
+            --glass-border: rgba(56, 189, 248, 0.35);
+            --neon-sky: #38bdf8;
+            --neon-glow: 0 0 16px rgba(56, 189, 248, 0.45);
+            --text-main: #f0f9ff;
+            --text-sub: #93c5fd;
         }
 
         body {
@@ -23,7 +26,7 @@
             color: var(--text-main);
             margin: 0;
             padding: 16px;
-            padding-bottom: 90px;
+            padding-bottom: 95px;
             box-sizing: border-box;
             min-height: 100vh;
         }
@@ -36,35 +39,30 @@
             font-size: 22px;
             font-weight: 800;
             margin: 0;
-            text-shadow: var(--neon-glow);
             color: #ffffff;
+            text-shadow: var(--neon-glow);
         }
 
-        .page {
-            display: none;
-        }
+        .page { display: none; }
+        .page.active { display: block; }
 
-        .page.active {
-            display: block;
-        }
-
-        /* Неоновые фильтры времени */
+        /* Фильтры времени */
         .filter-scroll {
             display: flex;
             gap: 8px;
             overflow-x: auto;
-            padding-bottom: 12px;
+            padding-bottom: 10px;
             margin-bottom: 16px;
             scrollbar-width: none;
         }
         .filter-scroll::-webkit-scrollbar { display: none; }
 
         .filter-chip {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(56, 189, 248, 0.08);
             border: 1px solid var(--glass-border);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             color: var(--text-sub);
-            padding: 8px 14px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-size: 13px;
             font-weight: 600;
@@ -74,124 +72,130 @@
         }
 
         .filter-chip.active {
-            background: rgba(0, 240, 255, 0.15);
-            border-color: var(--neon-blue);
-            color: var(--neon-blue);
+            background: rgba(56, 189, 248, 0.22);
+            border-color: var(--neon-sky);
+            color: #ffffff;
             box-shadow: var(--neon-glow);
         }
 
-        /* Карточки в стиле iOS Glassmorphism */
+        /* Карточка с 3D моделями */
         .feed-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
         }
 
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 22px;
             padding: 16px;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
 
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* Виджет 3D Подарка */
+        .viewer-3d-box {
+            width: 100%;
+            height: 200px;
+            border-radius: 16px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(0, 0, 0, 0.2) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            margin-bottom: 12px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .gift-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        model-viewer {
+            width: 100%;
+            height: 100%;
         }
 
-        .gift-icon {
-            font-size: 26px;
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            width: 48px;
-            height: 48px;
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .detail-item {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 14px;
-            box-shadow: var(--neon-glow);
+            flex-direction: column;
+        }
+
+        .detail-label {
+            color: var(--text-sub);
+            font-size: 11px;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            color: #ffffff;
         }
 
         .platform-tag {
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 800;
             padding: 3px 8px;
-            border-radius: 8px;
+            border-radius: 6px;
             text-transform: uppercase;
         }
-
-        .tag-mrkt { background: rgba(234, 179, 8, 0.2); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.4); }
-        .tag-portals { background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.4); }
-        .tag-tunnel { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .tag-mrkt { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .tag-portals { background: rgba(168, 85, 247, 0.2); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .tag-tunnel { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
 
         .price-badge {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 800;
-            color: var(--neon-blue);
+            color: var(--neon-sky);
             text-shadow: var(--neon-glow);
         }
 
-        /* Прозрачная неоновая кнопка iOS */
-        .btn-neon {
+        .btn-soft-neon {
             display: block;
             text-align: center;
-            background: rgba(0, 240, 255, 0.08);
-            border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
-            padding: 10px;
-            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid var(--neon-sky);
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 14px;
             text-decoration: none;
             font-weight: 700;
-            margin-top: 10px;
+            margin-top: 12px;
             box-shadow: var(--neon-glow);
             transition: all 0.2s ease;
         }
 
-        .btn-neon:active {
-            background: rgba(0, 240, 255, 0.25);
+        .btn-soft-neon:active {
+            background: rgba(56, 189, 248, 0.3);
             transform: scale(0.98);
         }
 
         /* Профиль */
-        .profile-box {
-            text-align: center;
-            padding: 24px 16px;
-        }
-
+        .profile-box { text-align: center; padding: 24px 16px; }
         .avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: rgba(0, 240, 255, 0.1);
-            border: 2px solid var(--neon-blue);
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(56, 189, 248, 0.15);
+            border: 2px solid var(--neon-sky);
             box-shadow: var(--neon-glow);
-            margin: 0 auto 14px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--neon-blue);
+            margin: 0 auto 12px auto;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; font-weight: bold; color: var(--neon-sky);
         }
 
-        /* Прозрачная нижняя навигация iOS */
+        /* Нижнее прозрачное меню */
         .bottom-nav {
             position: fixed;
             bottom: 12px;
             left: 16px;
             right: 16px;
             height: 64px;
-            background: rgba(10, 18, 36, 0.7);
+            background: rgba(11, 25, 44, 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 24px;
@@ -199,94 +203,44 @@
             justify-content: space-around;
             align-items: center;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
             z-index: 1000;
         }
 
         .nav-btn {
-            background: none;
-            border: none;
+            background: none; border: none;
             color: var(--text-sub);
             font-size: 11px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            width: 33%;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            cursor: pointer; width: 33%;
             transition: all 0.3s ease;
         }
 
         .nav-btn.active {
-            color: var(--neon-blue);
+            color: var(--neon-sky);
             font-weight: 700;
             text-shadow: var(--neon-glow);
-        }
-
-        .nav-icon {
-            font-size: 20px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Вкладка 1: Маркетплейсы -->
+    <!-- Вкладка 1: Все Маркетплейсы -->
     <div id="page-market" class="page active">
         <div class="header">
             <h1 class="title">🛒 Торговые Площадки</h1>
         </div>
-        <div class="feed-container">
-            <div class="glass-card">
-                <div class="card-header">
-                    <div class="gift-info">
-                        <div class="gift-icon">🎁</div>
-                        <div>
-                            <div style="font-weight: 700;">Red Star #1024</div>
-                            <span class="platform-tag tag-mrkt">MRKT</span>
-                        </div>
-                    </div>
-                    <div class="price-badge">150 TON</div>
-                </div>
-                <a href="https://t.me/mrkt" target="_blank" class="btn-neon">Купить</a>
-            </div>
-
-            <div class="glass-card">
-                <div class="card-header">
-                    <div class="gift-info">
-                        <div class="gift-icon">✨</div>
-                        <div>
-                            <div style="font-weight: 700;">Sparks #512</div>
-                            <span class="platform-tag tag-portals">Portals</span>
-                        </div>
-                    </div>
-                    <div class="price-badge">85 TON</div>
-                </div>
-                <a href="https://t.me/portals" target="_blank" class="btn-neon">Купить</a>
-            </div>
-
-            <div class="glass-card">
-                <div class="card-header">
-                    <div class="gift-info">
-                        <div class="gift-icon">💎</div>
-                        <div>
-                            <div style="font-weight: 700;">Diamond #42</div>
-                            <span class="platform-tag tag-tunnel">Tunnel</span>
-                        </div>
-                    </div>
-                    <div class="price-badge">310 TON</div>
-                </div>
-                <a href="https://t.me/tunnel" target="_blank" class="btn-neon">Купить</a>
-            </div>
+        <div class="feed-container" id="market-list">
+            <!-- Динамическая загрузка токенов -->
         </div>
     </div>
 
-    <!-- Вкладка 2: История Апгрейдов -->
+    <!-- Вкладка 2: Улучшенные подарки -->
     <div id="page-upgrades" class="page">
         <div class="header">
             <h1 class="title">⚡️ История Апгрейдов</h1>
         </div>
 
-        <!-- Фильтр по времени -->
         <div class="filter-scroll">
             <button class="filter-chip active" onclick="filterUpgrades('now', this)">⚡️ Только что</button>
             <button class="filter-chip" onclick="filterUpgrades('week', this)">📅 Неделю назад</button>
@@ -294,35 +248,31 @@
             <button class="filter-chip" onclick="filterUpgrades('year', this)">⏳ Год назад</button>
         </div>
 
-        <div class="feed-container" id="upgrades-list">
-            <!-- Список динамически переключается через JS -->
-        </div>
+        <div class="feed-container" id="upgrades-list"></div>
     </div>
 
     <!-- Вкладка 3: Профиль -->
     <div id="page-profile" class="page">
-        <div class="header">
-            <h1 class="title">👤 Профиль</h1>
-        </div>
+        <div class="header"><h1 class="title">👤 Профиль</h1></div>
         <div class="glass-card profile-box">
             <div class="avatar" id="user-avatar">?</div>
-            <h2 id="user-name" style="margin: 0 0 6px 0; font-size: 20px;">Загрузка...</h2>
+            <h2 id="user-name" style="margin: 0 0 6px 0; font-size: 20px;">Пользователь</h2>
             <p id="user-id" style="color: var(--text-sub); margin: 0; font-size: 13px;"></p>
         </div>
     </div>
 
-    <!-- Нижняя прозрачная парящая панель навигации -->
+    <!-- Навигация -->
     <div class="bottom-nav">
         <button class="nav-btn active" onclick="switchPage('market', this)">
-            <span class="nav-icon">🛍</span>
+            <span style="font-size:20px;">🛍</span>
             <span>Маркеты</span>
         </button>
         <button class="nav-btn" onclick="switchPage('upgrades', this)">
-            <span class="nav-icon">⚡️</span>
+            <span style="font-size:20px;">⚡️</span>
             <span>Апгрейды</span>
         </button>
         <button class="nav-btn" onclick="switchPage('profile', this)">
-            <span class="nav-icon">👤</span>
+            <span style="font-size:20px;">👤</span>
             <span>Профиль</span>
         </button>
     </div>
@@ -332,7 +282,6 @@
         tg.expand();
         tg.ready();
 
-        // Данные профиля из Telegram
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const user = tg.initDataUnsafe.user;
             document.getElementById('user-name').innerText = user.first_name + (user.last_name ? ' ' + user.last_name : '');
@@ -340,24 +289,91 @@
             document.getElementById('user-avatar').innerText = user.first_name.charAt(0).toUpperCase();
         }
 
-        // Данные для фильтрации апгрейдов
+        // Пример данных с 3D-моделями подарков (.glb) и полными атрибутами
+        const marketGifts = [
+            {
+                name: "Plush Bear",
+                collection: "Telegram Gifts",
+                number: "1024",
+                symbol: "🧸",
+                backdrop: "Cyan Soft Neon",
+                price: "145 TON",
+                platform: "MRKT",
+                platformClass: "tag-mrkt",
+                model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+                link: "https://t.me/mrkt"
+            },
+            {
+                name: "Sparks",
+                collection: "Telegram Gifts",
+                number: "512",
+                symbol: "✨",
+                backdrop: "Deep Blue Space",
+                price: "89 TON",
+                platform: "Portals",
+                platformClass: "tag-portals",
+                model3d: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb",
+                link: "https://t.me/portals"
+            },
+            {
+                name: "Red Star",
+                collection: "Telegram Gifts",
+                number: "42",
+                symbol: "⭐",
+                backdrop: "Golden Glow",
+                price: "320 TON",
+                platform: "Tunnel",
+                platformClass: "tag-tunnel",
+                model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+                link: "https://t.me/tunnel"
+            }
+        ];
+
+        function renderMarket() {
+            const container = document.getElementById('market-list');
+            container.innerHTML = '';
+
+            marketGifts.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'glass-card';
+                card.innerHTML = `
+                    <div class="viewer-3d-box">
+                        <model-viewer src="${item.model3d}" auto-rotate camera-controls touch-action="pan-y" shadow-intensity="1" alt="3D Gift"></model-viewer>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 18px; font-weight: 800;">${item.symbol} ${item.name}</span>
+                            <span class="platform-tag ${item.platformClass}" style="margin-left: 6px;">${item.platform}</span>
+                        </div>
+                        <div class="price-badge">${item.price}</div>
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item"><span class="detail-label">Коллекция:</span><span class="detail-value">${item.collection}</span></div>
+                        <div class="detail-item"><span class="detail-label">Номер подарка:</span><span class="detail-value">#${item.number}</span></div>
+                        <div class="detail-item"><span class="detail-label">Фон:</span><span class="detail-value">${item.backdrop}</span></div>
+                        <div class="detail-item"><span class="detail-label">Символ:</span><span class="detail-value">${item.symbol}</span></div>
+                    </div>
+                    <a href="${item.link}" target="_blank" class="btn-soft-neon">Купить на ${item.platform}</a>
+                `;
+                container.appendChild(card);
+            });
+        }
+
         const upgradeData = {
             now: [
-                { name: "Neon Skull #77", model: "Cyberpunk", backdrop: "Neon Blue", owner: "@durov", link: "https://fragment.com" },
-                { name: "Golden Crown #12", model: "Royal", backdrop: "Gold Foil", owner: "EQB3...9xL", link: "https://fragment.com" }
+                { name: "Cyber Skull", collection: "TG Gifts", number: "77", symbol: "💀", backdrop: "Electric Cyan", owner: "@durov", model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb", link: "https://fragment.com" }
             ],
             week: [
-                { name: "Sparks #304", model: "Energy", backdrop: "Dark Space", owner: "@telegram", link: "https://fragment.com" }
+                { name: "Golden Crown", collection: "TG Gifts", number: "12", symbol: "👑", backdrop: "Gold Foil", owner: "EQB3...9xL", model3d: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb", link: "https://fragment.com" }
             ],
             month: [
-                { name: "Plush Bear #888", model: "Vintage", backdrop: "Pastel", owner: "@ton_user", link: "https://fragment.com" }
+                { name: "Diamond", collection: "TG Gifts", number: "88", symbol: "💎", backdrop: "Soft Blue", owner: "@ton_user", model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb", link: "https://fragment.com" }
             ],
             year: [
-                { name: "Genesis Gift #001", model: "Original", backdrop: "Classic Blue", owner: "@founder", link: "https://fragment.com" }
+                { name: "Genesis Gift", collection: "TG Gifts", number: "01", symbol: "🎁", backdrop: "Classic Blue", owner: "@founder", model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb", link: "https://fragment.com" }
             ]
         };
 
-        // Отрисовка списка апгрейдов
         function renderUpgrades(period) {
             const container = document.getElementById('upgrades-list');
             container.innerHTML = '';
@@ -367,28 +383,28 @@
                 const card = document.createElement('div');
                 card.className = 'glass-card';
                 card.innerHTML = `
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        <div class="gift-icon">🎁</div>
-                        <div>
-                            <div style="font-weight: 700; font-size: 16px;">${item.name}</div>
-                            <div style="font-size: 12px; color: var(--text-sub);">Модель: ${item.model} • Фон: ${item.backdrop}</div>
-                            <div style="font-size: 12px; color: var(--neon-blue); margin-top: 2px;">Владелец: ${item.owner}</div>
-                        </div>
+                    <div class="viewer-3d-box">
+                        <model-viewer src="${item.model3d}" auto-rotate camera-controls touch-action="pan-y" alt="3D Gift Upgrade"></model-viewer>
                     </div>
-                    <a href="${item.link}" target="_blank" class="btn-neon">Смотреть на Fragment</a>
+                    <div style="font-weight: 800; font-size: 18px;">${item.symbol} ${item.name}</div>
+                    <div class="details-grid">
+                        <div class="detail-item"><span class="detail-label">Коллекция:</span><span class="detail-value">${item.collection}</span></div>
+                        <div class="detail-item"><span class="detail-label">Номер:</span><span class="detail-value">#${item.number}</span></div>
+                        <div class="detail-item"><span class="detail-label">Фон:</span><span class="detail-value">${item.backdrop}</span></div>
+                        <div class="detail-item"><span class="detail-label">Владелец:</span><span class="detail-value">${item.owner}</span></div>
+                    </div>
+                    <a href="${item.link}" target="_blank" class="btn-soft-neon">Смотреть на Fragment</a>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // Переключение фильтра времени
         function filterUpgrades(period, btn) {
             document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             renderUpgrades(period);
         }
 
-        // Переключение вкладок навигации
         function switchPage(pageId, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -396,13 +412,10 @@
             document.getElementById('page-' + pageId).classList.add('active');
             btn.classList.add('active');
 
-            if(pageId === 'upgrades') {
-                renderUpgrades('now');
-            }
+            if(pageId === 'upgrades') renderUpgrades('now');
         }
 
-        // Первичная загрузка
-        renderUpgrades('now');
+        renderMarket();
     </script>
 </body>
 </html>
