@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MRKT Style Gifts</title>
+    <title>Portals 3D WebGL Gifts</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
         :root {
-            --bg-color: #0e1621;
-            --card-bg: #17212b;
-            --text-primary: #ffffff;
-            --text-secondary: #7f91a4;
-            --accent-blue: #2b72d8;
-            --border-color: rgba(255, 255, 255, 0.07);
-            --rarity-legendary: #f59e0b;
-            --rarity-rare: #a855f7;
-            --rarity-common: #3b82f6;
+            --bg: #090d14;
+            --card-bg: rgba(21, 31, 46, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #2AABEE;
+            --text: #ffffff;
+            --subtext: #6c7c93;
         }
 
         * {
@@ -25,200 +24,123 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 12px;
             padding-bottom: 90px;
             user-select: none;
-        }
-
-        .header-box {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 4px 0 12px 4px;
+            overflow-x: hidden;
         }
 
         .header-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
-            margin: 0;
-            letter-spacing: -0.4px;
-        }
-
-        /* Полоса сортировки и фильтров */
-        .controls-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            padding-bottom: 4px;
-        }
-
-        .controls-bar::-webkit-scrollbar { display: none; }
-
-        .sort-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .sort-btn.active {
-            background: rgba(43, 114, 216, 0.2);
-            border-color: var(--accent-blue);
-            color: #fff;
+            margin: 8px 0 16px 4px;
+            letter-spacing: -0.5px;
         }
 
         .gifts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
 
-        /* Карточка MRKT Style */
-        .mrkt-card {
+        /* 3D Glassmorphism Card */
+        .portals-card {
             background: var(--card-bg);
-            border-radius: 18px;
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            border: 1px solid var(--border);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.2s ease;
             position: relative;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .mrkt-card:active {
-            transform: scale(0.96);
+        .portals-card:active {
+            transform: scale(0.95);
+            border-color: rgba(42, 171, 238, 0.4);
         }
 
-        .mrkt-media {
+        .canvas-container {
             width: 100%;
             aspect-ratio: 1 / 1;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            background: radial-gradient(circle at center, rgba(42, 171, 238, 0.1) 0%, transparent 70%);
         }
 
-        /* Динамический фоновый паттерн MRKT */
-        .mrkt-pattern {
-            position: absolute;
-            inset: 0;
-            background-size: 32px 32px;
-            background-repeat: repeat;
-            opacity: 0.14;
-            transform: rotate(-12deg) scale(1.2);
-            pointer-events: none;
-        }
-
-        /* Картинка с анимацией парения */
-        .mrkt-image {
-            width: 75%;
-            height: 75%;
-            object-fit: contain;
-            z-index: 2;
-            filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.5));
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            animation: floatGlow 3.5s ease-in-out infinite;
-        }
-
-        @keyframes floatGlow {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-4px) rotate(1deg); }
-        }
-
-        .mrkt-card:active .mrkt-image {
-            transform: scale(1.12) rotate(-2deg);
-        }
-
-        /* Плашка редкого атрибута */
-        .badge-rarity {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            font-size: 10px;
-            font-weight: 800;
-            padding: 3px 6px;
-            border-radius: 8px;
-            z-index: 3;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
         }
 
         .badge-num {
             position: absolute;
-            top: 8px;
-            left: 8px;
+            top: 10px;
+            left: 10px;
             background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(6px);
-            color: #fff;
+            backdrop-filter: blur(8px);
             font-size: 11px;
             font-weight: 700;
-            padding: 3px 7px;
-            border-radius: 8px;
-            z-index: 3;
+            padding: 4px 8px;
+            border-radius: 10px;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .badge-price {
             position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(43, 114, 216, 0.9);
-            backdrop-filter: blur(6px);
-            color: #fff;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(42, 171, 238, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            backdrop-filter: blur(8px);
             font-size: 12px;
             font-weight: 800;
-            padding: 4px 8px;
-            border-radius: 8px;
-            z-index: 3;
+            padding: 4px 10px;
+            border-radius: 10px;
+            z-index: 10;
         }
 
-        .mrkt-info {
-            padding: 10px 12px;
+        .card-info {
+            padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 2px;
+            background: rgba(10, 16, 26, 0.6);
+            border-top: 1px solid var(--border);
         }
 
-        .mrkt-title {
-            font-size: 14px;
+        .card-title {
+            font-size: 15px;
             font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .mrkt-sub {
-            font-size: 11px;
-            color: var(--text-secondary);
+        .card-sub {
+            font-size: 12px;
+            color: var(--subtext);
         }
 
-        /* Bottom Sheet MRKT */
+        /* Fullscreen 3D Sheet Overlay */
         .sheet-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(20px);
             display: flex;
             justify-content: center;
             align-items: flex-end;
-            z-index: 10000;
+            z-index: 1000;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.25s ease;
+            transition: opacity 0.3s ease;
         }
 
         .sheet-overlay.active {
@@ -229,13 +151,13 @@
         .sheet-content {
             width: 100%;
             max-width: 500px;
-            background: #17212b;
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
-            padding: 12px 16px 24px 16px;
+            background: #111923;
+            border-top-left-radius: 28px;
+            border-top-right-radius: 28px;
+            padding: 16px 20px 28px 20px;
             transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
-            border-top: 1px solid var(--border-color);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-top: 1px solid var(--border);
         }
 
         .sheet-overlay.active .sheet-content {
@@ -243,180 +165,64 @@
         }
 
         .sheet-handle {
-            width: 38px;
+            width: 40px;
             height: 4px;
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 2px;
             margin: 0 auto 16px auto;
         }
 
-        .sheet-preview {
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 14px auto;
-            border-radius: 22px;
+        .modal-canvas-box {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 16px auto;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .sheet-preview img {
-            width: 80%;
-            height: 80%;
-            object-fit: contain;
-            z-index: 2;
-            filter: drop-shadow(0 10px 16px rgba(0,0,0,0.6));
-            animation: pulseGlow 2.5s ease-in-out infinite;
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
         }
 
         .sheet-title {
             text-align: center;
-            font-size: 19px;
+            font-size: 20px;
             font-weight: 800;
             margin: 0;
         }
 
-        .sheet-collection {
+        .sheet-sub {
             text-align: center;
             font-size: 13px;
-            color: var(--text-secondary);
-            margin: 2px 0 16px 0;
+            color: var(--subtext);
+            margin: 4px 0 20px 0;
         }
 
-        /* Сетка атрибутов с процентами редких характеристик */
-        .attributes-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .attr-box {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 14px;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            position: relative;
-        }
-
-        .attr-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .attr-label {
-            font-size: 11px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-        }
-
-        .attr-pct {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 1px 5px;
-            border-radius: 6px;
-        }
-
-        .attr-value {
-            font-size: 13px;
-            font-weight: 700;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-top: 2px;
-        }
-
-        .btn-buy {
+        .btn-action {
             width: 100%;
-            background: #2b72d8;
+            background: var(--accent);
             color: #fff;
             border: none;
-            padding: 14px;
+            padding: 16px;
             border-radius: 16px;
-            font-size: 15px;
-            font-weight: 800;
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
             display: block;
-            box-shadow: 0 4px 16px rgba(43, 114, 216, 0.35);
+            box-shadow: 0 6px 20px rgba(42, 171, 238, 0.4);
         }
     </style>
 </head>
 <body>
 
-    <div class="header-box">
-        <h1 class="header-title">MRKT Gifts Market</h1>
-    </div>
-
-    <!-- Переключатели сортировки -->
-    <div class="controls-bar">
-        <button class="sort-btn active" onclick="sortGifts('default', this)">🔥 В тренде</button>
-        <button class="sort-btn" onclick="sortGifts('price-low', this)">💎 Дешевле</button>
-        <button class="sort-btn" onclick="sortGifts('price-high', this)">👑 Дороже</button>
-        <button class="sort-btn" onclick="sortGifts('number', this)">🔢 Низкий ID</button>
-    </div>
-
+    <div class="header-title">Portals 3D Market</div>
     <div class="gifts-grid" id="gifts-container"></div>
 
-    <!-- Bottom Sheet -->
+    <!-- 3D Modal Sheet -->
     <div class="sheet-overlay" id="sheet-modal" onclick="closeSheet(event)">
         <div class="sheet-content">
             <div class="sheet-handle"></div>
-            
-            <div class="sheet-preview" id="modal-preview">
-                <div class="mrkt-pattern" id="modal-pattern"></div>
-                <img id="modal-img" src="" alt="Gift">
-            </div>
-
-            <h3 class="sheet-title" id="modal-title">Name</h3>
-            <div class="sheet-collection" id="modal-collection">Collection</div>
-
-            <div class="attributes-grid">
-                <div class="attr-box">
-                    <div class="attr-header">
-                        <span class="attr-label">Модель</span>
-                        <span class="attr-pct" id="pct-model" style="color: var(--rarity-legendary); background: rgba(245, 158, 11, 0.15);">0.8%</span>
-                    </div>
-                    <span class="attr-value" id="modal-model">-</span>
-                </div>
-                <div class="attr-box">
-                    <div class="attr-header">
-                        <span class="attr-label">Фон</span>
-                        <span class="attr-pct" id="pct-backdrop" style="color: var(--rarity-rare); background: rgba(168, 85, 247, 0.15);">3.2%</span>
-                    </div>
-                    <span class="attr-value" id="modal-backdrop">-</span>
-                </div>
-                <div class="attr-box">
-                    <div class="attr-header">
-                        <span class="attr-label">Символ</span>
-                        <span class="attr-pct" id="pct-symbol" style="color: var(--rarity-common); background: rgba(59, 130, 246, 0.15);">12.5%</span>
-                    </div>
-                    <span class="attr-value" id="modal-symbol">-</span>
-                </div>
-                <div class="attr-box">
-                    <div class="attr-header">
-                        <span class="attr-label">Номер</span>
-                        <span class="attr-pct" id="pct-number" style="color: var(--rarity-common); background: rgba(59, 130, 246, 0.15);">#ID</span>
-                    </div>
-                    <span class="attr-value" id="modal-number">-</span>
-                </div>
-            </div>
-
-            <a href="#" target="_blank" class="btn-buy" id="modal-btn">Купить на MRKT</a>
+            <div class="modal-canvas-box" id="modal-3d-box"></div>
+            <h3 class="sheet-title" id="modal-title">3D Gift</h3>
+            <div class="sheet-sub" id="modal-sub">Collection</div>
+            <a href="#" target="_blank" class="btn-action" id="modal-btn">Купить</a>
         </div>
     </div>
 
@@ -425,159 +231,126 @@
         tg.expand();
         tg.ready();
 
-        let giftsData = [
-            {
-                name: "Freddy Monkey",
-                collection: "FCK CLUB",
-                number: 1024,
-                model: "Freddy Wolverine",
-                modelPct: "0.5%",
-                backdrop: "Dark Radial",
-                backdropPct: "1.2%",
-                symbol: "FCK Emblem",
-                symbolPct: "4.5%",
-                bgGradient: "radial-gradient(circle, #2d2d2d 0%, #0d0d0d 100%)",
-                patternSvg: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"white\"><path d=\"M12 2L15 9H22L16 14L18 21L12 17L6 21L8 14L2 9H9L12 2Z\"/></svg>')",
-                image: "https://i.postimg.cc/mD8N0x5G/monkey-freddy.png",
-                priceNum: 250,
-                price: "250 TON",
-                rarityLabel: "TOP 0.5%",
-                rarityColor: "#f59e0b",
-                link: "https://t.me/mrkt"
-            },
-            {
-                name: "Plush Pepe",
-                collection: "Pepe Gifts",
-                number: 788,
-                model: "Golden Frog",
-                modelPct: "1.8%",
-                backdrop: "Emerald Sparkle",
-                backdropPct: "5.0%",
-                symbol: "Pepe Mask",
-                symbolPct: "8.2%",
-                bgGradient: "radial-gradient(circle, #059669 0%, #022c22 100%)",
-                patternSvg: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"white\"><circle cx=\"12\" cy=\"12\" r=\"8\"/></svg>')",
-                image: "https://cdn-icons-png.flaticon.com/512/4213/4213641.png",
-                priceNum: 180,
-                price: "180 TON",
-                rarityLabel: "TOP 2%",
-                rarityColor: "#a855f7",
-                link: "https://t.me/mrkt"
-            },
-            {
-                name: "Durov Cap",
-                collection: "Telegram Originals",
-                number: 1,
-                model: "Black Cap",
-                modelPct: "0.1%",
-                backdrop: "Midnight Sky",
-                backdropPct: "0.3%",
-                symbol: "Telegram Star",
-                symbolPct: "1.0%",
-                bgGradient: "radial-gradient(circle, #1e293b 0%, #020617 100%)",
-                patternSvg: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"white\"><polygon points=\"12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9\"/></svg>')",
-                image: "https://cdn-icons-png.flaticon.com/512/3345/3345380.png",
-                priceNum: 1200,
-                price: "1200 TON",
-                rarityLabel: "TOP 0.1%",
-                rarityColor: "#f59e0b",
-                link: "https://t.me/mrkt"
-            },
-            {
-                name: "Cyber Skull",
-                collection: "Electric Skulls",
-                number: 404,
-                model: "Neon Skeleton",
-                modelPct: "3.5%",
-                backdrop: "Cyber Cyan",
-                backdropPct: "7.1%",
-                symbol: "Lightning",
-                symbolPct: "15.0%",
-                bgGradient: "radial-gradient(circle, #0891b2 0%, #083344 100%)",
-                patternSvg: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"white\"><polygon points=\"13,2 3,14 12,14 11,22 21,10 12,10\"/></svg>')",
-                image: "https://cdn-icons-png.flaticon.com/512/1162/1162981.png",
-                priceNum: 310,
-                price: "310 TON",
-                rarityLabel: "RARE",
-                rarityColor: "#3b82f6",
-                link: "https://t.me/mrkt"
-            }
+        const giftsData = [
+            { name: "Pepe Crown", collection: "Pepe Gifts", number: 88, price: "180 TON", color: 0x059669, shape: "torus" },
+            { name: "Cyber Gem", collection: "Electric Skulls", number: 404, price: "310 TON", color: 0x0891b2, shape: "octahedron" },
+            { name: "Gold Cube", collection: "Telegram Gifts", number: 12, price: "500 TON", color: 0xd97706, shape: "box" },
+            { name: "Mystic Star", collection: "Portals Exclusives", number: 7, price: "950 TON", color: 0x7c3aed, shape: "icosahedron" }
         ];
 
-        function renderGifts(data) {
+        const scenes = [];
+
+        function init3DCard(container, itemData) {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+            camera.position.z = 3.5;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0xffffff, 1.2);
+            pointLight.position.set(5, 5, 5);
+            scene.add(pointLight);
+
+            // 3D Mesh Mesh Construction
+            let geometry;
+            if (itemData.shape === 'torus') geometry = new THREE.TorusGeometry(0.7, 0.25, 16, 100);
+            else if (itemData.shape === 'octahedron') geometry = new THREE.OctahedronGeometry(0.9, 0);
+            else if (itemData.shape === 'box') geometry = new THREE.BoxGeometry(1, 1, 1);
+            else geometry = new THREE.IcosahedronGeometry(0.9, 0);
+
+            const material = new THREE.MeshStandardMaterial({
+                color: itemData.color,
+                metalness: 0.6,
+                roughness: 0.2,
+                wireframe: false
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            // Interactive Rotations
+            let isInteracting = false;
+            let targetRotX = 0;
+            let targetRotY = 0;
+
+            const handleMove = (x, y, rect) => {
+                const mouseX = ((x - rect.left) / rect.width) * 2 - 1;
+                const mouseY = -((y - rect.top) / rect.height) * 2 + 1;
+                targetRotY = mouseX * 1.5;
+                targetRotX = -mouseY * 1.5;
+            };
+
+            container.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY, container.getBoundingClientRect()));
+            container.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    handleMove(e.touches[0].clientX, e.touches[0].clientY, container.getBoundingClientRect());
+                }
+            });
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                mesh.rotation.y += (targetRotY - mesh.rotation.y) * 0.1 + 0.005;
+                mesh.rotation.x += (targetRotX - mesh.rotation.x) * 0.1;
+                renderer.render(scene, camera);
+            };
+            animate();
+        }
+
+        function renderGrid() {
             const container = document.getElementById('gifts-container');
             container.innerHTML = '';
 
-            data.forEach(item => {
+            giftsData.forEach((item, index) => {
                 const card = document.createElement('div');
-                card.className = 'mrkt-card';
+                card.className = 'portals-card';
                 card.onclick = () => openSheet(item);
 
                 card.innerHTML = `
-                    <div class="mrkt-media" style="background: ${item.bgGradient}">
-                        <div class="mrkt-pattern" style="background-image: ${item.patternSvg}"></div>
+                    <div class="canvas-container" id="canvas-card-${index}">
                         <div class="badge-num">#${item.number}</div>
-                        <div class="badge-rarity" style="color: ${item.rarityColor}">${item.rarityLabel}</div>
                         <div class="badge-price">${item.price}</div>
-                        <img src="${item.image}" class="mrkt-image" alt="${item.name}">
                     </div>
-                    <div class="mrkt-info">
-                        <div class="mrkt-title">${item.name}</div>
-                        <div class="mrkt-sub">${item.collection}</div>
+                    <div class="card-info">
+                        <div class="card-title">${item.name}</div>
+                        <div class="card-sub">${item.collection}</div>
                     </div>
                 `;
                 container.appendChild(card);
+
+                setTimeout(() => {
+                    init3DCard(document.getElementById(`canvas-card-${index}`), item);
+                }, 50);
             });
         }
 
-        function sortGifts(type, btn) {
-            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            let sorted = [...giftsData];
-            if (type === 'price-low') sorted.sort((a, b) => a.priceNum - b.priceNum);
-            if (type === 'price-high') sorted.sort((a, b) => b.priceNum - a.priceNum);
-            if (type === 'number') sorted.sort((a, b) => a.number - b.number);
-
-            renderGifts(sorted);
-        }
-
         function openSheet(item) {
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('light');
-            }
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
-            document.getElementById('modal-preview').style.background = item.bgGradient;
-            document.getElementById('modal-pattern').style.backgroundImage = item.patternSvg;
-            document.getElementById('modal-img').src = item.image;
             document.getElementById('modal-title').innerText = item.name;
-            document.getElementById('modal-collection').innerText = item.collection + " • #" + item.number;
-
-            document.getElementById('modal-model').innerText = item.model;
-            document.getElementById('pct-model').innerText = item.modelPct;
-
-            document.getElementById('modal-backdrop').innerText = item.backdrop;
-            document.getElementById('pct-backdrop').innerText = item.backdropPct;
-
-            document.getElementById('modal-symbol').innerText = item.symbol;
-            document.getElementById('pct-symbol').innerText = item.symbolPct;
-
-            document.getElementById('modal-number').innerText = "#" + item.number;
-            document.getElementById('pct-number').innerText = item.rarityLabel;
-
+            document.getElementById('modal-sub').innerText = item.collection + " • #" + item.number;
             document.getElementById('modal-btn').innerText = "Купить за " + item.price;
-            document.getElementById('modal-btn').href = item.link;
+
+            const box = document.getElementById('modal-3d-box');
+            box.innerHTML = '';
+            init3DCard(box, item);
 
             document.getElementById('sheet-modal').classList.add('active');
         }
 
-        function closeSheet(event) {
-            if (event.target.id === 'sheet-modal' || event.target.className === 'sheet-handle') {
+        function closeSheet(e) {
+            if (e.target.id === 'sheet-modal' || e.target.className === 'sheet-handle') {
                 document.getElementById('sheet-modal').classList.remove('active');
             }
         }
 
-        renderGifts(giftsData);
+        renderGrid();
     </script>
 </body>
 </html>
