@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gifts Monitor</title>
+    <!-- Обязательный скрипт Telegram Mini Apps -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--tg-theme-bg-color, #17212b);
+            color: var(--tg-theme-text-color, #ffffff);
+            padding: 16px;
+            margin: 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .gift-card {
+            background: var(--tg-theme-secondary-bg-color, #232e3c);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .btn {
+            display: block;
+            background-color: var(--tg-theme-button-color, #2b5278);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🎁 Трекер Подарков</h2>
+    </div>
+
+    <!-- Список подарков -->
+    <div id="gifts-list">
+        <div class="gift-card">
+            <h3>✨ Улучшенный подарок #1024</h3>
+            <p>Владелец: <b>@username</b></p>
+            <a href="https://fragment.com" target="_blank" class="btn">Открыть на Fragment</a>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация интерфейса Telegram
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачивает окно приложения на весь экран
+        tg.ready();
+    </script>
+</body>
+</html>
