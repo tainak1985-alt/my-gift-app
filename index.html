@@ -21,13 +21,15 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: radial-gradient(circle at top, #0d1b2a 0%, #050a12 100%);
+            background: radial-gradient(circle at top, #0c1827 0%, #040810 100%);
             background-attachment: fixed;
             color: var(--text-main);
             margin: 0;
             padding: 16px;
             padding-bottom: 95px;
             min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .header { margin-bottom: 16px; }
@@ -59,21 +61,33 @@
 
         /* Настоящая карточка NFT Подарка как в Telegram */
         .nft-card {
-            background: #111a2e;
+            background: #10192c;
             border-radius: 22px;
             border: 1px solid var(--glass-border);
             overflow: hidden;
             position: relative;
             cursor: pointer;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             flex-direction: column;
         }
 
+        /* Анимация Telegram-style клика/нажатия */
         .nft-card:active {
-            transform: scale(0.97);
+            transform: scale(0.93);
+        }
+
+        .nft-card.clicked {
+            animation: tgPop 0.4s ease-out;
             border-color: var(--neon-blue);
+            box-shadow: var(--neon-glow);
+        }
+
+        @keyframes tgPop {
+            0% { transform: scale(0.92); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         /* Область изображения с узорчатым фоном (Pattern Backdrop) */
@@ -86,31 +100,39 @@
             justify-content: center;
             background-size: cover;
             background-position: center;
+            overflow: hidden;
         }
 
         /* Паттерн-символы на фоне */
         .nft-pattern-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 0);
+            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.2px, transparent 0);
             background-size: 16px 16px;
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
-        /* Модель (персонаж / арт) */
+        /* Анимация парения / 3D эффекта модели подарка */
         .nft-image {
-            max-width: 85%;
-            max-height: 85%;
+            max-width: 80%;
+            max-height: 80%;
             object-fit: contain;
             z-index: 2;
-            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+            transition: transform 0.3s ease;
+            animation: floatItem 4s ease-in-out infinite;
+        }
+
+        @keyframes floatItem {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(1deg); }
         }
 
         .nft-badge-num {
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0, 0, 0, 0.55);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
@@ -139,7 +161,7 @@
 
         .nft-info-box {
             padding: 12px;
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
@@ -159,33 +181,34 @@
             color: var(--text-sub);
         }
 
-        /* Модальное окно с деталями при клике */
+        /* Модальное окно Telegram Sheet */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(16px);
             display: none; justify-content: center; align-items: flex-end; z-index: 2000;
+            opacity: 0; transition: opacity 0.25s ease;
         }
-        .modal-overlay.active { display: flex; }
+        .modal-overlay.active { display: flex; opacity: 1; }
 
         .modal-sheet {
-            background: #0b1526;
+            background: #0c1729;
             border: 1px solid var(--glass-border);
             border-top-left-radius: 28px;
             border-top-right-radius: 28px;
             width: 100%;
             padding: 24px 20px;
             box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
-            animation: slideUp 0.3s ease-out;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+        .modal-overlay.active .modal-sheet {
+            transform: translateY(0);
         }
 
         .modal-preview-box {
-            width: 140px;
-            height: 140px;
+            width: 150px;
+            height: 150px;
             margin: 0 auto 16px auto;
             border-radius: 24px;
             display: flex;
@@ -197,9 +220,18 @@
             box-shadow: var(--neon-glow);
         }
 
+        .modal-preview-box img {
+            animation: tgModalPulse 3s infinite ease-in-out;
+        }
+
+        @keyframes tgModalPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
         .details-list {
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 18px;
             padding: 14px;
             margin: 16px 0;
@@ -220,7 +252,7 @@
         .btn-action {
             display: block;
             text-align: center;
-            background: rgba(56, 189, 248, 0.18);
+            background: rgba(56, 189, 248, 0.2);
             border: 1px solid var(--neon-blue);
             color: #ffffff;
             padding: 14px;
@@ -247,7 +279,7 @@
         /* Парящее меню */
         .bottom-nav {
             position: fixed; bottom: 12px; left: 16px; right: 16px; height: 64px;
-            background: rgba(11, 21, 38, 0.85); backdrop-filter: blur(20px);
+            background: rgba(11, 21, 38, 0.88); backdrop-filter: blur(20px);
             border-radius: 24px; display: flex; justify-content: space-around; align-items: center;
             border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); z-index: 1000;
         }
@@ -318,7 +350,7 @@
         </div>
     </div>
 
-    <!-- Парящее прозрачное меню -->
+    <!-- Парящее меню -->
     <div class="bottom-nav">
         <button class="nav-btn active" onclick="switchPage('market', this)">
             <span style="font-size:20px;">🛍</span>
@@ -346,7 +378,7 @@
             document.getElementById('user-avatar').innerText = user.first_name.charAt(0).toUpperCase();
         }
 
-        // Данные подарков (структура со скриншота: Модель, Фон, Символ Паттерна, Коллекция, Номер)
+        // Полная базы настоящих Telegram NFT Gifts (Все модели, фоны и паттерны)
         const marketGifts = [
             {
                 name: "Freddy Monkey",
@@ -354,38 +386,77 @@
                 number: "1024",
                 model: "Freddy Wolverine",
                 backdrop: "Dark Radial Gradient",
-                bgGradient: "radial-gradient(circle, #333 0%, #111 100%)",
-                symbolPattern: "FCK Logo Pattern",
-                image: "https://i.postimg.cc/mD8N0x5G/monkey-freddy.png", // Арт со скриншота
+                bgGradient: "radial-gradient(circle, #383838 0%, #0d0d0d 100%)",
+                symbolPattern: "FCK Star Emblem",
+                image: "https://i.postimg.cc/mD8N0x5G/monkey-freddy.png",
                 price: "250 TON",
                 platform: "MRKT",
                 link: "https://t.me/mrkt"
             },
             {
-                name: "Cyber Plush Bear",
-                collection: "Telegram Gifts",
-                number: "512",
-                model: "Cyberpunk Bear",
-                backdrop: "Sky Blue Neon",
-                bgGradient: "radial-gradient(circle, #0284c7 0%, #030712 100%)",
-                symbolPattern: "Star Pattern",
+                name: "Plush Pepe",
+                collection: "Plush Pepe",
+                number: "88",
+                model: "Golden Pepe",
+                backdrop: "Emerald Sparkle",
+                bgGradient: "radial-gradient(circle, #059669 0%, #022c22 100%)",
+                symbolPattern: "Frog Pepe Pattern",
                 image: "https://cdn-icons-png.flaticon.com/512/4213/4213641.png",
-                price: "120 TON",
+                price: "180 TON",
+                platform: "Getgems",
+                link: "https://getgems.io"
+            },
+            {
+                name: "Durov's Cap",
+                collection: "Durov's Cap",
+                number: "1",
+                model: "Black Baseball Cap",
+                backdrop: "Midnight Obsidian",
+                bgGradient: "radial-gradient(circle, #1e293b 0%, #020617 100%)",
+                symbolPattern: "Telegram Star",
+                image: "https://cdn-icons-png.flaticon.com/512/3345/3345380.png",
+                price: "1200 TON",
+                platform: "Fragment",
+                link: "https://fragment.com"
+            },
+            {
+                name: "Scared Cat",
+                collection: "Scared Cat",
+                number: "512",
+                model: "Vampkitty",
+                backdrop: "Purple Fog",
+                bgGradient: "radial-gradient(circle, #7e22ce 0%, #2e1065 100%)",
+                symbolPattern: "Cat Paws Pattern",
+                image: "https://cdn-icons-png.flaticon.com/512/616/616430.png",
+                price: "95 TON",
                 platform: "Portals",
                 link: "https://t.me/portals"
             },
             {
-                name: "Golden Crown",
-                collection: "Royal Gifts",
-                number: "42",
-                model: "Imperial Crown",
-                backdrop: "Gold Foil",
-                bgGradient: "radial-gradient(circle, #ca8a04 0%, #1c1917 100%)",
-                symbolPattern: "Crown Emblem",
-                image: "https://cdn-icons-png.flaticon.com/512/2829/2829824.png",
-                price: "450 TON",
-                platform: "Tunnel",
-                link: "https://t.me/tunnel"
+                name: "Spy Agaric",
+                collection: "Spy Agaric",
+                number: "303",
+                model: "Nosferatu Shroom",
+                backdrop: "Crimson Red",
+                bgGradient: "radial-gradient(circle, #dc2626 0%, #450a0a 100%)",
+                symbolPattern: "Toxic Skull",
+                image: "https://cdn-icons-png.flaticon.com/512/3579/3579184.png",
+                price: "140 TON",
+                platform: "Tonnel",
+                link: "https://t.me/tonnel"
+            },
+            {
+                name: "Electric Skull",
+                collection: "Electric Skull",
+                number: "777",
+                model: "Cyber Skeleton",
+                backdrop: "Neon Cyan",
+                bgGradient: "radial-gradient(circle, #06b6d4 0%, #083344 100%)",
+                symbolPattern: "Lightning Cross",
+                image: "https://cdn-icons-png.flaticon.com/512/1162/1162981.png",
+                price: "310 TON",
+                platform: "MRKT",
+                link: "https://t.me/mrkt"
             }
         ];
 
@@ -396,13 +467,13 @@
             marketGifts.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'nft-card';
-                card.onclick = () => openModal(item, 'price');
+                card.onclick = (e) => triggerTgClick(card, () => openModal(item, 'price'));
                 card.innerHTML = `
                     <div class="nft-media-box" style="background: ${item.bgGradient}">
                         <div class="nft-pattern-overlay"></div>
                         <div class="nft-badge-num">#${item.number}</div>
                         <div class="nft-badge-price">${item.price}</div>
-                        <img src="${item.image}" class="nft-image" alt="${item.name}" onerror="this.style.display='none'">
+                        <img src="${item.image}" class="nft-image" alt="${item.name}">
                     </div>
                     <div class="nft-info-box">
                         <div class="nft-title">${item.name}</div>
@@ -421,11 +492,23 @@
                     number: "1024",
                     model: "Freddy Wolverine",
                     backdrop: "Dark Radial Gradient",
-                    bgGradient: "radial-gradient(circle, #333 0%, #111 100%)",
-                    symbolPattern: "FCK Logo Pattern",
+                    bgGradient: "radial-gradient(circle, #383838 0%, #0d0d0d 100%)",
+                    symbolPattern: "FCK Star Emblem",
                     image: "https://i.postimg.cc/mD8N0x5G/monkey-freddy.png",
                     owner: "@durov",
                     link: "https://fragment.com"
+                },
+                {
+                    name: "Snoop Cigar",
+                    collection: "Snoop Dogg",
+                    number: "420",
+                    model: "Gold Leaf Cigar",
+                    backdrop: "Rasta Gold",
+                    bgGradient: "radial-gradient(circle, #eab308 0%, #422006 100%)",
+                    symbolPattern: "Smoke Rings",
+                    image: "https://cdn-icons-png.flaticon.com/512/2829/2829824.png",
+                    owner: "@snoopdogg",
+                    link: "https://getgems.io"
                 }
             ],
             week: [],
@@ -436,12 +519,12 @@
         function renderUpgrades(period) {
             const container = document.getElementById('upgrades-grid');
             container.innerHTML = '';
-            
+
             const items = upgradeData[period] || [];
             items.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'nft-card';
-                card.onclick = () => openModal(item, 'owner');
+                card.onclick = () => triggerTgClick(card, () => openModal(item, 'owner'));
                 card.innerHTML = `
                     <div class="nft-media-box" style="background: ${item.bgGradient}">
                         <div class="nft-pattern-overlay"></div>
@@ -455,6 +538,18 @@
                 `;
                 container.appendChild(card);
             });
+        }
+
+        // Эффект вибрации (Haptic Feedback) и Telegram анимация
+        function triggerTgClick(element, callback) {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+            element.classList.add('clicked');
+            setTimeout(() => {
+                element.classList.remove('clicked');
+                callback();
+            }, 180);
         }
 
         function openModal(item, type) {
