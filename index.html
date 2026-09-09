@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gift Upgrades Tracker</title>
+    <title>Gifts Hub</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -12,14 +12,16 @@
             --accent-color: #38bdf8;
             --text-main: #f8fafc;
             --text-sub: #94a3b8;
+            --nav-bg: #17212b;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--tg-theme-bg-color, var(--bg-color));
             color: var(--tg-theme-text-color, var(--text-main));
             margin: 0;
             padding: 16px;
+            padding-bottom: 80px;
             box-sizing: border-box;
         }
 
@@ -27,7 +29,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .title {
@@ -36,15 +38,15 @@
             margin: 0;
         }
 
-        .badge {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent-color);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+        .page {
+            display: none;
         }
 
+        .page.active {
+            display: block;
+        }
+
+        /* Карточки подарков */
         .feed-container {
             display: flex;
             flex-direction: column;
@@ -54,54 +56,55 @@
         .gift-card {
             background: var(--tg-theme-secondary-bg-color, var(--card-bg));
             border-radius: 16px;
-            padding: 16px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.2s ease;
-        }
-
-        .gift-card:active {
-            transform: scale(0.98);
         }
 
         .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .gift-info {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
         .gift-icon {
-            font-size: 32px;
+            font-size: 28px;
             background: rgba(255, 255, 255, 0.05);
-            width: 50px;
-            height: 50px;
+            width: 46px;
+            height: 46px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 12px;
         }
 
-        .gift-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
+        .platform-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
         }
 
-        .gift-name {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0;
+        .tag-mrkt { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .tag-portals { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .tag-tunnel { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+
+        .price-badge {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent-color);
         }
 
-        .gift-owner {
-            font-size: 13px;
-            color: var(--text-sub);
-        }
-
-        .btn-action {
+        .btn-buy {
             display: block;
             text-align: center;
             background: var(--tg-theme-button-color, var(--accent-color));
@@ -109,38 +112,143 @@
             padding: 10px;
             border-radius: 10px;
             text-decoration: none;
-            font-size: 14px;
             font-weight: 600;
-            margin-top: 4px;
         }
 
-        .empty-state {
+        /* Профиль */
+        .profile-box {
+            background: var(--tg-theme-secondary-bg-color, var(--card-bg));
+            border-radius: 16px;
+            padding: 20px;
             text-align: center;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            margin: 0 auto 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        /* Нижняя навигация */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--nav-bg);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
             color: var(--text-sub);
-            margin-top: 40px;
-            font-size: 14px;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            width: 50%;
+        }
+
+        .nav-btn.active {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .nav-icon {
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1 class="title">🎁 NFT Апгрейды</h1>
-        <span class="badge" id="status-badge">Live</span>
+    <!-- Вкладка Маркетплейсы -->
+    <div id="page-market" class="page active">
+        <div class="header">
+            <h1 class="title">🛒 Маркетплейсы</h1>
+        </div>
+        <div class="feed-container" id="market-list">
+            <div class="gift-card">
+                <div class="card-header">
+                    <div class="gift-info">
+                        <div class="gift-icon">🎁</div>
+                        <div>
+                            <div style="font-weight: 600;">Red Star #1024</div>
+                            <span class="platform-tag tag-mrkt">MRKT</span>
+                        </div>
+                    </div>
+                    <div class="price-badge">150 TON</div>
+                </div>
+                <a href="https://t.me/mrkt" target="_blank" class="btn-buy">Купить</a>
+            </div>
+
+            <div class="gift-card">
+                <div class="card-header">
+                    <div class="gift-info">
+                        <div class="gift-icon">✨</div>
+                        <div>
+                            <div style="font-weight: 600;">Sparks #512</div>
+                            <span class="platform-tag tag-portals">Portals</span>
+                        </div>
+                    </div>
+                    <div class="price-badge">85 TON</div>
+                </div>
+                <a href="https://t.me/portals" target="_blank" class="btn-buy">Купить</a>
+            </div>
+            
+            <div class="gift-card">
+                <div class="card-header">
+                    <div class="gift-info">
+                        <div class="gift-icon">💎</div>
+                        <div>
+                            <div style="font-weight: 600;">Diamond #42</div>
+                            <span class="platform-tag tag-tunnel">Tunnel</span>
+                        </div>
+                    </div>
+                    <div class="price-badge">310 TON</div>
+                </div>
+                <a href="https://t.me/tunnel" target="_blank" class="btn-buy">Купить</a>
+            </div>
+        </div>
     </div>
 
-    <div class="feed-container" id="feed">
-        <!-- Пример карточки -->
-        <div class="gift-card">
-            <div class="card-header">
-                <div class="gift-icon">✨</div>
-                <div class="gift-info">
-                    <div class="gift-name">Red Star #1024</div>
-                    <div class="gift-owner">Владелец: EQBv...3k9P</div>
-                </div>
-            </div>
-            <a href="https://fragment.com" class="btn-action" target="_blank">Смотреть на Fragment</a>
+    <!-- Вкладка Профиль -->
+    <div id="page-profile" class="page">
+        <div class="header">
+            <h1 class="title">👤 Мой профиль</h1>
         </div>
+        <div class="profile-box">
+            <div class="avatar" id="user-avatar">?</div>
+            <h2 id="user-name" style="margin: 0 0 6px 0; font-size: 18px;">Загрузка...</h2>
+            <p id="user-id" style="color: var(--text-sub); margin: 0; font-size: 13px;"></p>
+        </div>
+    </div>
+
+    <!-- Нижняя навигация снизу по середине -->
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="switchPage('market', this)">
+            <span class="nav-icon">🛍</span>
+            <span>Маркеты</span>
+        </button>
+        <button class="nav-btn" onclick="switchPage('profile', this)">
+            <span class="nav-icon">👤</span>
+            <span>Профиль</span>
+        </button>
     </div>
 
     <script>
@@ -148,22 +256,21 @@
         tg.expand();
         tg.ready();
 
-        // Функция для динамического добавления новых событий из бэкенда
-        function addGiftEvent(name, owner, url) {
-            const feed = document.getElementById('feed');
-            const card = document.createElement('div');
-            card.className = 'gift-card';
-            card.innerHTML = `
-                <div class="card-header">
-                    <div class="gift-icon">🎁</div>
-                    <div class="gift-info">
-                        <div class="gift-name">${name}</div>
-                        <div class="gift-owner">Владелец: ${owner}</div>
-                    </div>
-                </div>
-                <a href="${url}" class="btn-action" target="_blank">Смотреть на Fragment</a>
-            `;
-            feed.prepend(card);
+        // Заполнение профиля данными Telegram
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const user = tg.initDataUnsafe.user;
+            document.getElementById('user-name').innerText = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            document.getElementById('user-id').innerText = 'ID: ' + user.id;
+            document.getElementById('user-avatar').innerText = user.first_name.charAt(0).toUpperCase();
+        }
+
+        // Переключение страниц
+        function switchPage(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById('page-' + pageId).classList.add('active');
+            btn.classList.add('active');
         }
     </script>
 </body>
