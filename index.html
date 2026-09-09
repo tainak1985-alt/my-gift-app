@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Telegram Gifts Explorer</title>
+    <title>Telegram Gifts NFT Hub</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Подключение Lottie для оригинальных 3D-анимаций подарков Telegram -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 
     <style>
         :root {
-            --bg-color: #0c1829;
-            --card-bg: rgba(18, 38, 66, 0.65);
-            --glass-border: rgba(56, 189, 248, 0.25);
+            --bg-dark: #080e18;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(56, 189, 248, 0.3);
             --neon-blue: #38bdf8;
-            --neon-glow: 0 0 16px rgba(56, 189, 248, 0.4);
+            --neon-glow: 0 0 18px rgba(56, 189, 248, 0.45);
             --text-main: #f0f9ff;
             --text-sub: #93c5fd;
         }
@@ -23,12 +21,12 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: radial-gradient(circle at top, #0f243f 0%, #08101d 100%);
+            background: radial-gradient(circle at top, #0d1b2a 0%, #050a12 100%);
             background-attachment: fixed;
             color: var(--text-main);
             margin: 0;
             padding: 16px;
-            padding-bottom: 90px;
+            padding-bottom: 95px;
             min-height: 100vh;
         }
 
@@ -45,105 +43,138 @@
         .filter-scroll::-webkit-scrollbar { display: none; }
         .filter-chip {
             background: rgba(56, 189, 248, 0.08); border: 1px solid var(--glass-border);
-            backdrop-filter: blur(10px); color: var(--text-sub); padding: 8px 16px;
+            backdrop-filter: blur(12px); color: var(--text-sub); padding: 8px 16px;
             border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer;
         }
         .filter-chip.active {
             background: rgba(56, 189, 248, 0.25); border-color: var(--neon-blue); color: #fff; box-shadow: var(--neon-glow);
         }
 
-        /* Сетка подарков в стиле Telegram */
+        /* Сетка NFT подарков */
         .gifts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 14px;
         }
 
-        /* Карточка подарка в стиле Telegram */
-        .tg-gift-card {
-            background: var(--card-bg);
+        /* Настоящая карточка NFT Подарка как в Telegram */
+        .nft-card {
+            background: #111a2e;
+            border-radius: 22px;
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 12px;
-            backdrop-filter: blur(15px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            overflow: hidden;
             position: relative;
             cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
             transition: transform 0.2s ease, border-color 0.2s ease;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
         }
 
-        .tg-gift-card:active {
-            transform: scale(0.96);
+        .nft-card:active {
+            transform: scale(0.97);
             border-color: var(--neon-blue);
         }
 
-        .badge-number {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            color: var(--neon-blue);
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-
-        .badge-price {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-
-        .gift-avatar {
-            width: 100px;
-            height: 100px;
-            margin: 18px 0 10px 0;
+        /* Область изображения с узорчатым фоном (Pattern Backdrop) */
+        .nft-media-box {
+            width: 100%;
+            height: 170px;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 55px;
+            background-size: cover;
+            background-position: center;
         }
 
-        .gift-card-title {
-            font-size: 15px;
+        /* Паттерн-символы на фоне */
+        .nft-pattern-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 0);
+            background-size: 16px 16px;
+            opacity: 0.6;
+        }
+
+        /* Модель (персонаж / арт) */
+        .nft-image {
+            max-width: 85%;
+            max-height: 85%;
+            object-fit: contain;
+            z-index: 2;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+        }
+
+        .nft-badge-num {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 11px;
             font-weight: 700;
-            margin-bottom: 4px;
-            text-align: center;
+            padding: 3px 8px;
+            border-radius: 12px;
+            z-index: 3;
         }
 
-        .gift-card-sub {
+        .nft-badge-price {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(56, 189, 248, 0.25);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 12px;
+            z-index: 3;
+            box-shadow: var(--neon-glow);
+        }
+
+        .nft-info-box {
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nft-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nft-sub {
             font-size: 11px;
             color: var(--text-sub);
-            text-align: center;
         }
 
-        /* Модальное окно (Показывает подробную инфу при клике) */
+        /* Модальное окно с деталями при клике */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(12px);
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px);
             display: none; justify-content: center; align-items: flex-end; z-index: 2000;
         }
         .modal-overlay.active { display: flex; }
 
         .modal-sheet {
-            background: #0d1e36;
+            background: #0b1526;
             border: 1px solid var(--glass-border);
             border-top-left-radius: 28px;
             border-top-right-radius: 28px;
             width: 100%;
             padding: 24px 20px;
-            box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
             animation: slideUp 0.3s ease-out;
         }
 
@@ -152,16 +183,25 @@
             to { transform: translateY(0); }
         }
 
-        .modal-icon {
-            font-size: 70px;
-            text-align: center;
-            margin-bottom: 10px;
+        .modal-preview-box {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 16px auto;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--neon-glow);
         }
 
         .details-list {
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 16px;
-            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 18px;
+            padding: 14px;
             margin: 16px 0;
             display: flex;
             flex-direction: column;
@@ -180,9 +220,9 @@
         .btn-action {
             display: block;
             text-align: center;
-            background: rgba(56, 189, 248, 0.15);
+            background: rgba(56, 189, 248, 0.18);
             border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
+            color: #ffffff;
             padding: 14px;
             border-radius: 16px;
             text-decoration: none;
@@ -196,7 +236,7 @@
         }
 
         /* Профиль */
-        .profile-box { text-align: center; padding: 24px 16px; background: var(--card-bg); border-radius: 20px; border: 1px solid var(--glass-border); }
+        .profile-box { text-align: center; padding: 24px 16px; background: rgba(15, 23, 42, 0.7); border-radius: 22px; border: 1px solid var(--glass-border); }
         .avatar {
             width: 80px; height: 80px; border-radius: 50%; background: rgba(56, 189, 248, 0.15);
             border: 2px solid var(--neon-blue); box-shadow: var(--neon-glow);
@@ -204,10 +244,10 @@
             font-size: 32px; font-weight: bold; color: var(--neon-blue);
         }
 
-        /* Нижнее меню */
+        /* Парящее меню */
         .bottom-nav {
             position: fixed; bottom: 12px; left: 16px; right: 16px; height: 64px;
-            background: rgba(12, 24, 41, 0.8); backdrop-filter: blur(20px);
+            background: rgba(11, 21, 38, 0.85); backdrop-filter: blur(20px);
             border-radius: 24px; display: flex; justify-content: space-around; align-items: center;
             border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); z-index: 1000;
         }
@@ -223,7 +263,7 @@
 </head>
 <body>
 
-    <!-- Вкладка 1: Торговые площадки -->
+    <!-- Вкладка 1: Маркетплейсы -->
     <div id="page-market" class="page active">
         <div class="header"><h1 class="title">🛒 Торговые Площадки</h1></div>
         <div class="gifts-grid" id="market-grid"></div>
@@ -253,19 +293,23 @@
         </div>
     </div>
 
-    <!-- Всплывающее окно информации о подарке -->
+    <!-- Всплывающая подробная карточка NFT -->
     <div class="modal-overlay" id="info-modal">
         <div class="modal-sheet">
-            <div class="modal-icon" id="modal-icon">🎁</div>
+            <div class="modal-preview-box" id="modal-bg-box">
+                <div class="nft-pattern-overlay"></div>
+                <img id="modal-img" src="" class="nft-image" alt="NFT Gift">
+            </div>
+
             <h2 style="text-align: center; margin: 0;" id="modal-title">Название Подарка</h2>
             <p style="text-align: center; color: var(--text-sub); margin: 4px 0 0 0; font-size: 13px;" id="modal-collection">Коллекция</p>
 
             <div class="details-list">
-                <div class="detail-row"><span class="detail-label">Имя коллекции:</span><span class="detail-val" id="modal-col-name">—</span></div>
-                <div class="detail-row"><span class="detail-label">Название модели:</span><span class="detail-val" id="modal-model">—</span></div>
-                <div class="detail-row"><span class="detail-label">Название фона:</span><span class="detail-val" id="modal-backdrop">—</span></div>
-                <div class="detail-row"><span class="detail-label">Название символа:</span><span class="detail-val" id="modal-symbol">—</span></div>
-                <div class="detail-row"><span class="detail-label">Номер подарка:</span><span class="detail-val" id="modal-number">—</span></div>
+                <div class="detail-row"><span class="detail-label">Коллекция:</span><span class="detail-val" id="modal-col-name">—</span></div>
+                <div class="detail-row"><span class="detail-label">Модель:</span><span class="detail-val" id="modal-model">—</span></div>
+                <div class="detail-row"><span class="detail-label">Фон (Backdrop):</span><span class="detail-val" id="modal-backdrop">—</span></div>
+                <div class="detail-row"><span class="detail-label">Символ фона (Pattern):</span><span class="detail-val" id="modal-symbol">—</span></div>
+                <div class="detail-row"><span class="detail-label">Номер NFT:</span><span class="detail-val" id="modal-number">—</span></div>
                 <div class="detail-row"><span class="detail-label" id="modal-extra-label">Стоимость:</span><span class="detail-val" id="modal-extra-val">—</span></div>
             </div>
 
@@ -274,7 +318,7 @@
         </div>
     </div>
 
-    <!-- Нижняя парящая навигация -->
+    <!-- Парящее прозрачное меню -->
     <div class="bottom-nav">
         <button class="nav-btn active" onclick="switchPage('market', this)">
             <span style="font-size:20px;">🛍</span>
@@ -302,48 +346,91 @@
             document.getElementById('user-avatar').innerText = user.first_name.charAt(0).toUpperCase();
         }
 
-        // Данные подарков с маркетплейсов
+        // Данные подарков (структура со скриншота: Модель, Фон, Символ Паттерна, Коллекция, Номер)
         const marketGifts = [
-            { name: "Plush Bear", collection: "Telegram Gifts", number: "1024", symbol: "🧸 Медвежонок", backdrop: "Небесно-голубой Неон", model: "Soft Plush", price: "145 TON", platform: "MRKT", icon: "🧸", link: "https://t.me/mrkt" },
-            { name: "Sparks", collection: "Telegram Gifts", number: "512", symbol: "✨ Искры", backdrop: "Глубокий Космос", model: "Cyber Spark", price: "89 TON", platform: "Portals", icon: "✨", link: "https://t.me/portals" },
-            { name: "Red Star", collection: "Telegram Gifts", number: "42", symbol: "⭐ Звезда", backdrop: "Золотое Сияние", model: "Ruby Star", price: "320 TON", platform: "Tunnel", icon: "⭐", link: "https://t.me/tunnel" },
-            { name: "Diamond", collection: "Telegram Gifts", number: "88", symbol: "💎 Алмаз", backdrop: "Алмазная Пыль", model: "Crystal V2", price: "500 TON", platform: "MRKT", icon: "💎", link: "https://t.me/mrkt" }
+            {
+                name: "Freddy Monkey",
+                collection: "FCK CLUB",
+                number: "1024",
+                model: "Freddy Wolverine",
+                backdrop: "Dark Radial Gradient",
+                bgGradient: "radial-gradient(circle, #333 0%, #111 100%)",
+                symbolPattern: "FCK Logo Pattern",
+                image: "https://i.postimg.cc/mD8N0x5G/monkey-freddy.png", // Арт со скриншота
+                price: "250 TON",
+                platform: "MRKT",
+                link: "https://t.me/mrkt"
+            },
+            {
+                name: "Cyber Plush Bear",
+                collection: "Telegram Gifts",
+                number: "512",
+                model: "Cyberpunk Bear",
+                backdrop: "Sky Blue Neon",
+                bgGradient: "radial-gradient(circle, #0284c7 0%, #030712 100%)",
+                symbolPattern: "Star Pattern",
+                image: "https://cdn-icons-png.flaticon.com/512/4213/4213641.png",
+                price: "120 TON",
+                platform: "Portals",
+                link: "https://t.me/portals"
+            },
+            {
+                name: "Golden Crown",
+                collection: "Royal Gifts",
+                number: "42",
+                model: "Imperial Crown",
+                backdrop: "Gold Foil",
+                bgGradient: "radial-gradient(circle, #ca8a04 0%, #1c1917 100%)",
+                symbolPattern: "Crown Emblem",
+                image: "https://cdn-icons-png.flaticon.com/512/2829/2829824.png",
+                price: "450 TON",
+                platform: "Tunnel",
+                link: "https://t.me/tunnel"
+            }
         ];
 
-        // Отрисовка сетки маркетов
         function renderMarket() {
             const container = document.getElementById('market-grid');
             container.innerHTML = '';
 
             marketGifts.forEach(item => {
                 const card = document.createElement('div');
-                card.className = 'tg-gift-card';
+                card.className = 'nft-card';
                 card.onclick = () => openModal(item, 'price');
                 card.innerHTML = `
-                    <div class="badge-number">#${item.number}</div>
-                    <div class="badge-price">${item.price}</div>
-                    <div class="gift-avatar">${item.icon}</div>
-                    <div class="gift-card-title">${item.name}</div>
-                    <div class="gift-card-sub">${item.model} • ${item.platform}</div>
+                    <div class="nft-media-box" style="background: ${item.bgGradient}">
+                        <div class="nft-pattern-overlay"></div>
+                        <div class="nft-badge-num">#${item.number}</div>
+                        <div class="nft-badge-price">${item.price}</div>
+                        <img src="${item.image}" class="nft-image" alt="${item.name}" onerror="this.style.display='none'">
+                    </div>
+                    <div class="nft-info-box">
+                        <div class="nft-title">${item.name}</div>
+                        <div class="nft-sub">${item.model} • ${item.platform}</div>
+                    </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // История улучшений
         const upgradeData = {
             now: [
-                { name: "Cyber Skull", collection: "Telegram Gifts", number: "77", symbol: "💀 Череп", backdrop: "Электрик Синий", model: "Cyberpunk 2077", owner: "@durov", icon: "💀", link: "https://fragment.com" }
+                {
+                    name: "Freddy Monkey",
+                    collection: "FCK CLUB",
+                    number: "1024",
+                    model: "Freddy Wolverine",
+                    backdrop: "Dark Radial Gradient",
+                    bgGradient: "radial-gradient(circle, #333 0%, #111 100%)",
+                    symbolPattern: "FCK Logo Pattern",
+                    image: "https://i.postimg.cc/mD8N0x5G/monkey-freddy.png",
+                    owner: "@durov",
+                    link: "https://fragment.com"
+                }
             ],
-            week: [
-                { name: "Golden Crown", collection: "Telegram Gifts", number: "12", symbol: "👑 Корона", backdrop: "Золотой Глянцевый", model: "Royal Gold", owner: "EQB3...9xL", icon: "👑", link: "https://fragment.com" }
-            ],
-            month: [
-                { name: "Magic Cap", collection: "Telegram Gifts", number: "304", symbol: "🧢 Кепка", backdrop: "Темно-синий", model: "Classic Durov", owner: "@telegram", icon: "🧢", link: "https://fragment.com" }
-            ],
-            year: [
-                { name: "Genesis Gift", collection: "Telegram Gifts", number: "01", symbol: "🎁 Первенец", backdrop: "Классический TON", model: "Original #1", owner: "@founder", icon: "🎁", link: "https://fragment.com" }
-            ]
+            week: [],
+            month: [],
+            year: []
         };
 
         function renderUpgrades(period) {
@@ -353,28 +440,33 @@
             const items = upgradeData[period] || [];
             items.forEach(item => {
                 const card = document.createElement('div');
-                card.className = 'tg-gift-card';
+                card.className = 'nft-card';
                 card.onclick = () => openModal(item, 'owner');
                 card.innerHTML = `
-                    <div class="badge-number">#${item.number}</div>
-                    <div class="gift-avatar">${item.icon}</div>
-                    <div class="gift-card-title">${item.name}</div>
-                    <div class="gift-card-sub">Владелец: ${item.owner}</div>
+                    <div class="nft-media-box" style="background: ${item.bgGradient}">
+                        <div class="nft-pattern-overlay"></div>
+                        <div class="nft-badge-num">#${item.number}</div>
+                        <img src="${item.image}" class="nft-image" alt="${item.name}">
+                    </div>
+                    <div class="nft-info-box">
+                        <div class="nft-title">${item.name}</div>
+                        <div class="nft-sub">Владелец: ${item.owner}</div>
+                    </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // Открытие всплывающей карточки с подробной инфой
         function openModal(item, type) {
-            document.getElementById('modal-icon').innerText = item.icon;
+            document.getElementById('modal-bg-box').style.background = item.bgGradient;
+            document.getElementById('modal-img').src = item.image;
             document.getElementById('modal-title').innerText = item.name;
             document.getElementById('modal-collection').innerText = item.collection;
 
             document.getElementById('modal-col-name').innerText = item.collection;
             document.getElementById('modal-model').innerText = item.model;
             document.getElementById('modal-backdrop').innerText = item.backdrop;
-            document.getElementById('modal-symbol').innerText = item.symbol;
+            document.getElementById('modal-symbol').innerText = item.symbolPattern;
             document.getElementById('modal-number').innerText = "#" + item.number;
 
             if (type === 'price') {
